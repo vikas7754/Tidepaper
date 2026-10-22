@@ -15,6 +15,10 @@
   <img src="https://img.shields.io/badge/macOS-13%2B-black.svg" alt="macOS 13+">
 </p>
 
+<p align="center">
+  <img src="docs/demo.gif" width="800" alt="Tidepaper playing an animated sunset over the sea as the desktop wallpaper">
+</p>
+
 ## Features
 
 - **Videos and animations** – MP4, MOV and M4V (anything QuickTime Player can play), plus GIF,
