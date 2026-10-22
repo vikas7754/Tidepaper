@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         wallpaper.scaling = Preferences.scaling
         wallpaper.sharpPixels = Preferences.sharpPixels
         wallpaper.isPausedByUser = Preferences.isPaused
+        wallpaper.matchesLockScreen = Preferences.matchesLockScreen
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -59,6 +60,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(item("Show in Finder", #selector(showInFinder), enabled: hasWallpaper))
         menu.addItem(item("Remove Wallpaper", #selector(removeWallpaper), enabled: hasWallpaper))
         menu.addItem(.separator())
+        let matchLockScreen = item(
+            "Match Lock Screen", #selector(toggleMatchLockScreen), checked: wallpaper.matchesLockScreen)
+        matchLockScreen.toolTip = "Sets the macOS wallpaper, which the lock screen shows, to a still frame of yours."
+        menu.addItem(matchLockScreen)
         menu.addItem(item(
             "Launch at Login", #selector(toggleLaunchAtLogin),
             checked: SMAppService.mainApp.status == .enabled))
@@ -132,6 +137,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func toggleSharpPixels() {
         wallpaper.sharpPixels.toggle()
         Preferences.sharpPixels = wallpaper.sharpPixels
+    }
+
+    @objc private func toggleMatchLockScreen() {
+        wallpaper.matchesLockScreen.toggle()
+        Preferences.matchesLockScreen = wallpaper.matchesLockScreen
     }
 
     @objc private func togglePause() {

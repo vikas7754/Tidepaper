@@ -6,10 +6,12 @@ import AppKit
 final class WallpaperManager: NSObject {
     private let framePlayer = FramePlayer()
     private let videoPlayer = VideoPlayer()
+    private let systemWallpaper = SystemWallpaper()
     private var windows: [CGDirectDisplayID: WallpaperWindow] = [:]
     private var screensAreAsleep = false
     /// Bumped on every `show`/`clear` so a file that finishes loading after being replaced is dropped.
     private var loadRequest = 0
+    private var currentContent: WallpaperContent?
 
     private(set) var currentFile: URL?
 
@@ -18,7 +20,18 @@ final class WallpaperManager: NSObject {
     }
 
     var scaling = ScalingMode.fill {
-        didSet { windows.values.forEach(applyAppearance(to:)) }
+        didSet {
+            windows.values.forEach(applyAppearance(to:))
+            systemWallpaper.scaling = scaling
+        }
+    }
+
+    /// Whether the macOS wallpaper, which the lock screen shows, follows Tidepaper's as a still frame.
+    var matchesLockScreen = true {
+        didSet {
+            guard matchesLockScreen != oldValue else { return }
+            updateSystemWallpaper()
+        }
     }
 
     var sharpPixels = false {
@@ -57,15 +70,27 @@ final class WallpaperManager: NSObject {
             framePlayer.stop()
             videoPlayer.play(asset)
         }
+        currentContent = content
+        updateSystemWallpaper()
     }
 
     /// Takes the wallpaper down, uncovering the system one.
     func clear() {
         loadRequest += 1
         currentFile = nil
+        currentContent = nil
         framePlayer.stop()
         videoPlayer.stop()
         syncWindowsWithScreens()
+        updateSystemWallpaper()
+    }
+
+    private func updateSystemWallpaper() {
+        if matchesLockScreen, let currentContent {
+            systemWallpaper.match(currentContent)
+        } else {
+            systemWallpaper.restore()
+        }
     }
 
     /// One window per connected display while there is something to show, none otherwise.
@@ -137,7 +162,7 @@ final class WallpaperManager: NSObject {
     }
 }
 
-private extension NSScreen {
+extension NSScreen {
     var displayID: CGDirectDisplayID? {
         deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID
     }

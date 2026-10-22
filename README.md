@@ -28,10 +28,12 @@
 - **Light on resources** – videos are hardware-decoded (about 2% CPU, 16 MB of memory, even for
   4K). Playback pauses by itself when the desktop is covered or the displays sleep, and
   Tidepaper never keeps your Mac awake.
+- **Matching lock screen** – the lock screen can only show a still picture, so Tidepaper sets it
+  to a frame of your wallpaper instead of leaving the old one there.
 - **Scaling options** – fill, fit, stretch or center, plus sharp nearest-neighbour scaling for
   pixel art.
 - **Menu-bar app** – no Dock icon, remembers your wallpaper and recent files, can launch at login.
-- **No dependencies** – under 800 lines of Swift on AppKit, AVFoundation, ImageIO and
+- **No dependencies** – about 1,000 lines of Swift on AppKit, AVFoundation, ImageIO and
   Core Animation.
 
 ## Install
@@ -71,6 +73,7 @@ Click the Tidepaper icon in the menu bar:
 | **Sharp Pixels** | Nearest-neighbour scaling for pixel-art images. |
 | **Pause / Resume** | Stops or restarts the animation. |
 | **Show in Finder** / **Remove Wallpaper** | Reveal the current file, or go back to the system wallpaper. |
+| **Match Lock Screen** | Sets the macOS wallpaper, which the lock screen and login window show, to a still frame of yours. On by default; turning it off or removing the wallpaper puts your own macOS wallpaper back. |
 | **Launch at Login** | Start Tidepaper automatically. |
 
 You can also right-click a file in Finder and choose **Open With › Tidepaper**, or run
@@ -101,6 +104,9 @@ macOS's WindowServer also does some extra compositing while anything animates on
   keyframe animation: decoded once, then played by the system compositor with no CPU from the
   app. Larger ones are streamed, each frame decoded when it's due.
 - Window occlusion and display sleep notifications pause playback whenever nothing would be seen.
+- The lock screen and login window only show the macOS wallpaper, so Tidepaper saves the first
+  frame to `~/Library/Application Support/Tidepaper` and sets it as the macOS wallpaper on every
+  display and Space, remembering the wallpaper it replaces so it can put it back.
 
 | File | Role |
 |---|---|
@@ -110,11 +116,12 @@ macOS's WindowServer also does some extra compositing while anything animates on
 | `WallpaperContent.swift` | Recognises videos and images |
 | `VideoPlayer.swift` / `FramePlayer.swift` | Video and animated-image playback |
 | `AnimatedImage.swift` | Frame timing for GIF, APNG and WebP |
+| `SystemWallpaper.swift` | Still frame for the lock screen; restoring your macOS wallpaper |
 
 ## Limitations
 
 - The wallpaper is the same on every display.
-- The lock screen keeps the system wallpaper.
+- The lock screen can't animate: macOS only shows a still picture there (see **Match Lock Screen**).
 - Videos are always muted.
 
 ## Contributing

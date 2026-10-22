@@ -52,6 +52,18 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "paused") }
     }
 
+    /// On unless turned off.
+    static var matchesLockScreen: Bool {
+        get { defaults.object(forKey: "matchesLockScreen") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "matchesLockScreen") }
+    }
+
+    /// The user's own macOS wallpaper per display ID, put back when Tidepaper's is removed.
+    static var originalDesktopPictures: [String: String] {
+        get { defaults.dictionary(forKey: "originalDesktopPictures") as? [String: String] ?? [:] }
+        set { defaults.set(newValue, forKey: "originalDesktopPictures") }
+    }
+
     static var currentFile: URL? {
         get { defaults.data(forKey: "currentFile").flatMap(url(fromBookmark:)) }
         set { defaults.set(newValue.flatMap(bookmark(for:)), forKey: "currentFile") }
